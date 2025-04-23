@@ -1,0 +1,253 @@
+---
+title: "4.21 SemRush AO4"
+format: html
+---
+
+```{r}
+# Load the dataset
+data <- read.csv("4.21CurrentKeywords.csv")
+```
+
+```{r}
+# Inspect column names (you've already done this)
+colnames(data)
+```
+
+```{r}
+# Step 3: Create log-transformed Search Volume
+data$log_volume <- log(data$Search.Volume + 1)
+```
+
+```{r}
+# Step 4: Create the interaction term
+data$interaction <- data$log_volume * data$Keyword.Difficulty
+```
+
+```{r}
+# Step 5: Fit the multiple linear regression model
+model <- lm(SERP.Position ~ log_volume + Keyword.Difficulty + interaction, data = data)
+```
+
+```{r}
+# Step 6: View the results
+summary(model)
+
+```
+
+```{r}
+# Load necessary libraries
+library(tidyverse)
+```
+
+```{r}
+# Load your dataset
+keywords_df <- read.csv("4.21CurrentKeywords.csv")
+```
+
+```{r}
+# Create a log-transformed search volume column
+keywords_df$log_volume <- log(keywords_df$Search.Volume + 1)
+```
+
+```{r}
+# Optional: Clean SERP positions if needed
+keywords_df <- keywords_df %>% filter(!is.na(SERP.Position))
+```
+
+```{r}
+# Create the scatterplot
+ggplot(keywords_df, aes(x = log_volume, y = SERP.Position)) +
+  geom_point(aes(size = Keyword.Difficulty, color = Keyword.Difficulty), alpha = 0.8) +
+  scale_y_reverse() +  # Lower SERP positions are better
+  scale_color_gradient(low = "#00BFC4", high = "#F8766D") +
+  scale_size_continuous(range = c(2, 8)) +
+  labs(
+    title = "SERP Position vs. log(Search Volume)",
+    subtitle = "Bubble size and color represent Keyword Difficulty",
+    x = "log(Search Volume)",
+    y = "SERP Position (Lower is Better)",
+    color = "Keyword Difficulty",
+    size = "Keyword Difficulty"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    legend.position = "right",
+    panel.grid.minor = element_blank(),
+    plot.title = element_text(face = "bold")
+  )
+```
+
+```{r}
+# Load necessary libraries
+library(tidyverse)
+library(ggrepel)
+```
+
+```{r}
+# Load your dataset
+keywords_df <- read.csv("4.21CurrentKeywords.csv")
+
+# Create log-transformed search volume
+keywords_df$log_volume <- log(keywords_df$Search.Volume + 1)
+
+# Filter out missing values
+keywords_df <- keywords_df %>% filter(!is.na(SERP.Position))
+```
+
+```{r}
+# Set thresholds for difficulty and volume
+difficulty_threshold <- 50  # Difficulty below 50 is ideal
+volume_threshold <- median(keywords_df$Search.Volume, na.rm = TRUE)  # Use median for this dataset
+```
+
+```{r}
+# Assign quadrants
+keywords_df <- keywords_df %>%
+  mutate(
+    Opportunity = case_when(
+      Keyword.Difficulty < difficulty_threshold & Search.Volume >= volume_threshold ~ "High Opportunity",
+      Keyword.Difficulty >= difficulty_threshold & Search.Volume >= volume_threshold ~ "Competitive",
+      Keyword.Difficulty < difficulty_threshold & Search.Volume < volume_threshold ~ "Niche Opportunity",
+      TRUE ~ "Low Priority"
+    )
+  )
+```
+
+```{r}
+# Plot Keyword Opportunity Matrix
+ggplot(keywords_df, aes(x = Keyword.Difficulty, y = Search.Volume, color = Opportunity)) +
+  geom_point(size = 3, alpha = 0.8) +
+  geom_text_repel(aes(label = Keyword), size = 3, max.overlaps = 12, box.padding = 0.4) +
+  geom_vline(xintercept = difficulty_threshold, linetype = "dashed", color = "gray40") +
+  geom_hline(yintercept = volume_threshold, linetype = "dashed", color = "gray40") +
+  scale_color_manual(values = c(
+    "High Opportunity" = "#00BFC4",
+    "Competitive" = "#F8766D",
+    "Niche Opportunity" = "#7CAE00",
+    "Low Priority" = "gray60"
+  )) +
+  labs(
+    title = "Keyword Opportunity Matrix",
+    subtitle = "Based on Search Volume and Keyword Difficulty",
+    x = "Keyword Difficulty",
+    y = "Search Volume",
+    color = "Opportunity Zone"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    panel.grid.minor = element_blank(),
+    plot.title = element_text(face = "bold"),
+    legend.position = "bottom"
+  )
+
+```
+
+```{r}
+# Load libraries
+library(tidyverse)
+library(knitr)
+
+# Load data
+keywords_df <- read.csv("4.21CurrentKeywords.csv")
+
+# Format Keyword Difficulty as a percentage (with % sign)
+keywords_df %>%
+  mutate(Keyword.Difficulty = paste0(round(Keyword.Difficulty, 0), "%")) %>%
+  select(Keyword, Search.Volume, Keyword.Difficulty, SERP.Position) %>%
+  arrange(SERP.Position) %>%
+  kable(caption = "Keywords Sorted by SERP Position with Difficulty as %")
+
+```
+```{r}
+# Load libraries
+library(tidyverse)
+library(gt)
+
+# Load data
+keywords_df <- read.csv("4.21CurrentKeywords.csv")
+
+# Create styled table with Keyword Difficulty as percent
+keywords_df %>%
+  select(Keyword, Search.Volume, Keyword.Difficulty, SERP.Position) %>%
+  arrange(SERP.Position) %>%
+  gt() %>%
+  tab_header(
+    title = "Keyword Performance Table",
+    subtitle = "Keyword Difficulty displayed as percent"
+  ) %>%
+  fmt_percent(
+    columns = Keyword.Difficulty,
+    decimals = 0,
+    scale_values = FALSE  # Because your values are already in 0–100 range
+  ) %>%
+  fmt_number(
+    columns = Search.Volume,
+    decimals = 0
+  ) %>%
+  cols_label(
+    Keyword = "Keyword",
+    Search.Volume = "Search Volume",
+    Keyword.Difficulty = "Difficulty",
+    SERP.Position = "SERP Rank"
+  )
+
+```
+```{r}
+# Load libraries
+library(tidyverse)
+library(knitr)
+
+# Load your dataset
+keywords_df <- read.csv("4.21CurrentKeywords.csv")
+
+# Format Keyword Difficulty as a percentage (character string)
+keywords_df <- keywords_df %>%
+  mutate(
+    `Keyword Difficulty` = paste0(round(Keyword.Difficulty, 0), "%")
+  ) %>%
+  select(
+    Keyword,
+    `SERP Position` = SERP.Position,
+    `Search Volume` = Search.Volume,
+    `Keyword Difficulty`
+  ) %>%
+  arrange(`SERP Position`)
+
+# Display as table
+kable(keywords_df, caption = "Keyword Summary Table with Difficulty as %")
+
+```
+```{r}
+install.packages("randomForest")  # Run only once if not already installed
+library(randomForest)
+```
+```{r}
+# Load your dataset
+keywords_df <- read.csv("4.21CurrentKeywords.csv")
+
+# Create a log-transformed version of search volume
+keywords_df$log_volume <- log(keywords_df$Search.Volume + 1)
+
+# Drop rows with missing values (if any)
+keywords_df <- na.omit(keywords_df)
+
+# Optional: View structure
+str(keywords_df)
+
+```
+```{r}
+# Run the Random Forest model
+rf_model <- randomForest(SERP.Position ~ log_volume + Keyword.Difficulty,
+                         data = keywords_df,
+                         ntree = 500,          # Number of trees
+                         importance = TRUE)    # Show variable importance
+
+# View model summary
+print(rf_model)
+
+```
+```{r}
+# Plot importance of predictors
+varImpPlot(rf_model, main = "Variable Importance in Predicting SERP Position")
+```
+

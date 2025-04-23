@@ -1,0 +1,285 @@
+---
+title: "M08: Data Wrangling and Visualization for MSDM Culminating Experience Project"
+author: "Ricky Woznichak"
+date: '`r format(Sys.time())`'
+format: 
+  html: 
+    toc: true
+    toc-location: left
+    toc-depth: 4
+    number-sections: true
+    code-line-numbers: true
+    code-fold: false
+    code-link: true
+    embed-resources: true
+editor: visual
+execute: 
+  freeze: auto
+  warning: false
+  error: true
+---
+
+# Analytics Objective 4:
+
+> Improve visibility by targeting high-intent, low-competition keywords to increase organic search rankings, to increase conversion.
+>
+> -   Independent Variable (IV): Focus on primary and long-tail keywords.
+>
+> -   Dependent Variable (DV): Ranking position in search engine results.
+>
+> -   Methods: A/B Testing, Keyword Research & Planning Manipulation: Track keyword ranking improvements after on-page SEO updates and content publishing.
+
+These are the keywords I will utilize and monitor throughout my analytics objective.
+
+-   Keywords were selected based on client's request to drive traffic from users specifically searching for "Product Management Software".
+
+    -   Develop and write new landing page and blog content to drive organic traffic
+
+    -   Optimize metadata for Search Engine Crawling
+
+> Productfolio.com offers a wide range of product management content that attracts numerous visitors, yet very few convert into purchases. The primary objective is to engage users who are ready to buy product management software tools, rather than those seeking only research information.
+
+# Definitions:
+
+## **Search Volume**
+
+Search Volume in SEMrush refers to the average number of times a specific keyword is searched in a month over the past 12 months. This metric is localized, meaning it reflects search frequency within a chosen geographic database (e.g., United States, United Kingdom), and helps marketers understand the popularity and seasonal trends of a keyword. It’s a key indicator for estimating potential traffic and gauging keyword demand when planning SEO or PPC strategies.
+
+## **Keyword Difficulty**
+
+Keyword Difficulty is a metric developed by SEMrush to estimate how challenging it would be to rank organically in the top 10 search results on Google for a given keyword. It considers multiple factors such as the authority and backlink profiles of the current top-ranking pages, the competitiveness of the niche, and the overall strength of domains already ranking. The score is expressed as a percentage from 0 to 100 — with higher values indicating more competition and a greater need for robust SEO efforts, including high-quality content and backlinks, to achieve visibility.
+
+# Prospective Keyword Target Lists
+
+## Top 25 Keywords by Search Volume and Keyword Difficulty
+
+```{r echo=FALSE}
+library(readr)
+library(dplyr)
+library(ggplot2)
+```
+
+```{r echo=FALSE}
+# Load the data
+keywords_df <- read_csv("Target_Keywords_for_Productfolio_com.csv")
+```
+
+```{r echo=FALSE}
+# Clean column names just in case
+names(keywords_df) <- gsub("\\s+", "_", names(keywords_df))
+```
+
+```{r echo=FALSE}
+# Sort by Volume (descending) then KD (descending), take top 25
+top_keywords <- keywords_df |>
+  arrange(desc(Volume), desc(Keyword_Difficulty)) |>
+  slice_head(n = 25)
+```
+
+```{r echo=FALSE}
+# Google-style theme
+google_theme <- theme_minimal(base_size = 13, base_family = "sans") +
+  theme(
+    plot.title = element_text(face = "bold", size = 16, color = "#202124"),
+    plot.subtitle = element_text(size = 12, color = "#5f6368"),
+    axis.title = element_text(face = "bold", color = "#202124"),
+    axis.text = element_text(color = "#3c4043"),
+    panel.grid.major = element_line(color = "#dadce0"),
+    panel.grid.minor = element_blank(),
+    plot.background = element_rect(fill = "white", color = NA),
+    panel.background = element_rect(fill = "white", color = NA)
+  )
+```
+
+```{r echo=FALSE}
+# Plot
+ggplot(top_keywords, aes(x = reorder(Keyword, Volume), y = Volume)) +
+  geom_col(fill = "#1a73e8") +  # Google blue
+  geom_text(
+    aes(label = paste0("", Keyword_Difficulty)),
+    hjust = 1.05,
+    color = "white",
+    size = 3.8
+  ) +
+  coord_flip() +
+  labs(
+    title = "Project Management Software KW",
+    subtitle = "Keyword Difficulty % shown on each bar",
+    x = "Keyword",
+    y = "Monthly Search Volume",
+    caption = "Source: SEMrush | 2025-03-27"
+  ) +
+  google_theme + 
+  theme(
+    plot.caption = element_text(
+      size = 10,
+      hjust = 0.5,  # center-align the caption
+      face = "italic",
+      color = "#5f6368",
+      margin = margin(t = 20)
+    )
+  )
+
+```
+
+```{r echo=FALSE}
+library(readxl)
+```
+
+## PM Software Keywords by Search Volume and Keyword Difficulty
+
+```{r echo=FALSE}
+# List sheets
+#excel_sheets("PM-software_broad-match_us_2025-03-27.xlsx")
+```
+
+```{r echo=FALSE}
+# Load the first sheet
+pm_keywords <- read_excel("PM-software_broad-match_us_2025-03-27.xlsx", sheet = 1)
+
+# View column names
+#names(pm_keywords)
+```
+
+```{r echo=FALSE}
+# Load the Excel file (assuming Sheet 1 is correct)
+pm_keywords <- read_excel("PM-software_broad-match_us_2025-03-27.xlsx", sheet = 1)
+
+# Clean column names for easier access
+names(pm_keywords) <- gsub("\\s+", "_", names(pm_keywords))
+```
+
+```{r echo=FALSE}
+# Sort by Search Volume, then Keyword Difficulty
+top_pm_keywords <- pm_keywords |>
+  arrange(desc(Volume), desc(Keyword_Difficulty)) |>
+  slice_head(n = 25)
+```
+
+```{r echo=FALSE}
+# Google-inspired theme
+google_theme <- theme_minimal(base_size = 13, base_family = "sans") +
+  theme(
+    plot.title = element_text(face = "bold", size = 16, color = "#202124"),
+    plot.subtitle = element_text(size = 12, color = "#5f6368"),
+    axis.title = element_text(face = "bold", color = "#202124"),
+    axis.text = element_text(color = "#3c4043"),
+    panel.grid.major = element_line(color = "#dadce0"),
+    panel.grid.minor = element_blank(),
+    plot.background = element_rect(fill = "white", color = NA),
+    panel.background = element_rect(fill = "white", color = NA)
+  )
+```
+
+```{r echo=FALSE}
+# Plot
+ggplot(top_pm_keywords, aes(x = reorder(Keyword, Volume), y = Volume)) +
+  geom_col(fill = "#1a73e8") +
+  geom_text(
+    aes(label = paste0("", Keyword_Difficulty)),
+    hjust = 1.05,
+    color = "white",
+    size = 3.8
+  ) +
+  coord_flip() +
+  labs(
+    title = "PM Software Keywords by Search Volume",
+    subtitle = "Keyword Difficulty % shown on each bar",
+    x = "Keyword",
+    y = "Monthly Search Volume",
+    caption = "Source: SEMrush | 2025-03-27"
+  ) +
+  google_theme +
+  theme(
+    plot.caption = element_text(
+      size = 10,
+      hjust = 0.5,               # center-aligned footer
+      face = "italic",
+      color = "#5f6368",
+      margin = margin(t = 10)    # space above the footer
+    )
+  )
+
+```
+
+## Product Manager Keywords by Search Volume and Difficulty
+
+```{r echo=FALSE}
+library(readxl)
+library(dplyr)
+library(ggplot2)
+```
+
+```{r echo=FALSE}
+# Load the Excel file (assume Sheet 1 is correct)
+pm_df <- read_excel("Product-management_broad-match_us_2025-03-27.xlsx", sheet = 1)
+```
+
+```{r echo=FALSE}
+# Clean column names: replace spaces with underscores
+names(pm_df) <- gsub("\\s+", "_", names(pm_df))
+```
+
+```{r echo=FALSE}
+# Peek column names to make sure they match
+# print(names(pm_df))
+
+# Top 25 keywords sorted by Search Volume, then KD
+top_pm <- pm_df |>
+  arrange(desc(Volume), desc(Keyword_Difficulty)) |>
+  slice_head(n = 25)
+```
+
+```{r echo=FALSE}
+# Google-style theme
+google_theme <- theme_minimal(base_size = 13, base_family = "sans") +
+  theme(
+    plot.title = element_text(face = "bold", size = 16, color = "#202124"),
+    plot.subtitle = element_text(size = 12, color = "#5f6368"),
+    axis.title = element_text(face = "bold", color = "#202124"),
+    axis.text = element_text(color = "#3c4043"),
+    panel.grid.major = element_line(color = "#dadce0"),
+    panel.grid.minor = element_blank(),
+    plot.background = element_rect(fill = "white", color = NA),
+    panel.background = element_rect(fill = "white", color = NA)
+  )
+```
+
+```{r echo=FALSE}
+# Bar chart
+ggplot(top_pm, aes(x = reorder(Keyword, Volume), y = Volume)) +
+  geom_col(fill = "#1a73e8") +
+  geom_text(
+    aes(label = paste0("", Keyword_Difficulty)),
+    hjust = 1.05,
+    color = "white",
+    size = 3.8
+  ) +
+  coord_flip() +
+  labs(
+    title = "Top 25 Product Manager KW",
+    subtitle = "Keyword Difficulty % shown on each bar",
+    x = "Keyword",
+    y = "Monthly Search Volume",
+    caption = "Source: SEMrush | 2025-03-27"
+  ) +
+  google_theme +
+  theme(
+    plot.caption = element_text(
+      size = 10,
+      hjust = 0.5,               # center the footer
+      face = "italic",
+      color = "#5f6368",
+      margin = margin(t = 10)    # space above caption
+    )
+  )
+
+```
+
+# Experiment:
+
+> Our goal is to utilize low competition, high value keywords within website content and monitor changes in search ranking for our targeted keywords. The time frame has yet to be determined.
+
+> We will write content with these specific keywords embedded, then monitor keyword rankings with [SEM Rush: Position Tracking Tool](https://www.semrush.com/position-tracking/):
+
+![](images/clipboard-420433592.png)
