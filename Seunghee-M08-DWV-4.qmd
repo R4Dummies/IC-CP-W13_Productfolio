@@ -1,0 +1,259 @@
+---
+title: "M08: Data Wrangling and Visualization for MSDM Culminating Experience Project"
+author: "Seunghee Im"
+date: '`r format(Sys.time())`'
+format: 
+  html: 
+    toc: true
+    toc-depth: 4
+    number-sections: true
+    code-line-numbers: true
+    code-fold: true
+    code-link: true
+    embed-resources: true
+editor: visual
+execute: 
+  freeze: auto
+  warning: false
+  error: true
+---
+
+# User Research & Traffic Optimization (User Drop-off Across the Signup Journey)
+
+## productfolio Signup Funnel (Feb 1 - Mar 31, 2025)
+
+Descriptive Analytic Used:
+
+:   -   User Count: Number of users at each step of the funnel (343 at signup page)
+
+    -   Conversion Rate: Percentage of user who successfully move to the next step
+
+    -   Drop-off Rate: Percentage of users lost between steps (90.7% drop after signup page)
+
+Insight:
+
+:   -   There is signignificant user drop-off throughout the funnel:
+
+    -   From Signup Page -\> Signup Completed (only 9.3% complete)
+
+    -   And from Activated -\> Setup Finished (only 20% complete)
+
+Recommendation
+
+:   -   Simplify and clarify the signup process (e.g., remove unnecessary field, improve CTA clarity)
+
+    -   Streamline on boarding: guide users with tutorials or checklists post-signup to reduce drop-off before setup is finished
+
+    -   A/B test messaging and page design for clarity and motivation
+
+## Productfolio Signup Funnel with Abandonment Rates
+
+This Funnel Visualization:
+
+:   This chart includes both user count and abandonment rate labels, helping stakeholders quickly understand drop off points without external references. This supports to identify and reduce friction in the user acquisition and on boarding process.
+
+Drop off Insight:
+
+:   This chart visually emphasize significant user loss. most notably between Signup Page and Signup Completed and continues through Activation to Setup Finished.
+
+:   
+
+```{r}
+
+library(ggplot2)
+
+funnel_data <- data.frame(
+  Step = factor(c("Signup Page", "Signup Completed", "Activated", "Setup Finished"),
+                levels = c("Signup Page", "Signup Completed", "Activated", "Setup Finished")),
+  Users = c(343, 32, 15, 3),
+  AbandonmentRate = c(NA, 90.7, 53.1, 80)
+)
+
+ggplot(funnel_data, aes(x = Step, y = Users)) +
+  geom_col(fill = "steelblue") +
+  geom_text(aes(label = paste0(Users, " users")), vjust = -0.5, size = 4.5) +
+  labs(
+    title = "1.1: Productfolio Signup Funnel (Feb 1 - Mar 31, 2025)",
+    y = "User Count",
+    x = "Funnel Step"
+  ) +
+  theme_minimal()
+ggplot(funnel_data, aes(x = Step, y = Users)) +
+  geom_col(fill = "steelblue") +
+  geom_text(aes(label = paste0(Users, " users")), vjust = -0.5, size = 4.5) +
+  geom_text(
+    aes(label = ifelse(!is.na(AbandonmentRate),
+                       paste0("Abandonment: ", AbandonmentRate, "%"),
+                       "")),
+    vjust = 1.5, color = "darkred", size = 3.5
+  ) +
+  labs(
+    title = "1.2: Productfolio Signup Funnel with Abandonment Rates",
+    y = "User Count",
+    x = "Funnel Step"
+  ) +
+  theme_minimal()
+
+
+```
+
+```{r}
+library(readxl)
+Cleaned_Site_Events_Data <- read_excel("~/Downloads/Cleaned_Site_Events_Data.xlsx")
+View(Cleaned_Site_Events_Data)
+```
+
+# Event Frequency Analysis: Key User Interactions
+
+::: callout-note
+## Analytics Objective#1: User Research & Traffic Optimization
+
+This graph supports the objective by showing how often users perform key actions like page views, session starts, and first visit. Offering insight into user acquisition and engagement behavior.
+:::
+
+Descriptive Analytics Used:
+
+:   -   Event Count: Total number of times each event occurred
+
+    -   Comparative Frequency: Relative ordering of the most to least frequent actions
+
+    -   Behavioral Indicators: Metrics like first visit, session start, user engagement, and page view used to understand acquisition and engagement activity.
+
+Insights
+
+:   The most frequent actions users take on Productfolio are page view (9,504) and session start (8,672), indicating strong top of funnel acquisition. However, first visit (5,539) and user engagement (5,819) are significant lower, suggesting a gap between users arriving and those actually engaging meaningfully with the site
+
+Recommendation
+
+:   -   Enhance content experience for first time visitors (e.g., welcome pop-ups, interactive demos)
+
+    -   Analyze traffic by source to identify high bounce or low engagement channels and optimize those accordingly
+
+**This directly supports the goal of tracking user acquisition and engagement behavior.**
+
+```{r}
+
+library(readxl)
+library(dplyr)
+library(ggplot2)
+
+Cleaned_Site_Events_Data <- read_excel("~/Downloads/Cleaned_Site_Events_Data.xlsx", skip = 1)
+
+
+focus_events <- Cleaned_Site_Events_Data %>%
+  filter(`Event name` %in% c("page_view", "session_start", "user_engagement", "first_visit"))
+
+focus_events$`Event count` <- as.numeric(focus_events$`Event count`)
+
+ggplot(focus_events, aes(x = reorder(`Event name`, `Event count`), y = `Event count`)) +
+  geom_bar(stat = "identity", fill = "#4CAF50", width = 0.6) +
+  geom_text(aes(label = `Event count`), vjust = -0.3, size = 4) +
+  labs(
+    title = "Frequency of Key User Events",
+    subtitle = "Understanding What Actions Users Are Taking on Productfolio",
+    x = "Event Name",
+    y = "Event Count"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title = element_text(face = "bold", size = 16),
+    plot.subtitle = element_text(size = 12, color = "gray30"),
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12)
+  ) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.1)))
+
+```
+
+# Content Performance Insights Aligned with Traffic & Conversion Goals
+
+These charts support my AO by showing which pages drive the most traffic and engagement. They help identify content that attracts key audiences and highlight top performing pages for SEO and conversion. This informs data driven improvements in acquisition, content strategy, and user retention.
+
+## Top 5 Most Viewed Pages
+
+Descriptive Analytics Used:
+
+:   -   Pageviews: Total number of times each page was viewed
+
+    -   Ranking by Volume: Pages ordered by highest to lowest view count
+
+Insights:
+
+:   The 21-product-management-frameworks page received the highest number of views (1,401) followed by ice-scoring and 5cs-framework. These are likely key entry points or highly ranked pages in search, showing which content resonates most with users. This highlights opportunities to optimize popular pages for user engagement and conversion.
+
+Recommendation:
+
+:   -   Add or improve conversion elements (e.g., CTAs, email capture, "Try for Free" buttoms) on the most viewed pages
+
+    -   Use this data to guide content strategy: promote similar topics or expand on high performing content
+
+```{r}
+
+library(readxl)
+Cleaned_Pageviews <- read_excel("~/Downloads/Cleaned_Pageviews.xlsx")
+View(Cleaned_Pageviews)
+
+```
+
+```{r}
+
+library(ggplot2)
+library(dplyr)
+
+
+top_views <- Cleaned_Pageviews %>%
+  arrange(desc(Views)) %>%
+  head(5)
+
+ggplot(top_views, aes(x = reorder(`Page path and screen class`, Views), y = Views)) +
+  geom_bar(stat = "identity", fill = "#1f77b4") +
+  geom_text(aes(label = Views), vjust = -0.3, size = 4) +
+  labs(
+    title = "3.1: Top 5 Most Viewed Pages",
+    subtitle = "Supports acquisition strategy by showing popular content",
+    x = "Page",
+    y = "Views"
+  ) +
+  theme_minimal(base_size = 14) +
+  coord_flip()
+
+```
+
+### Top 5 Pages by Avg Engagement Time
+
+Descriptive Analytics Used:
+
+:   -   Average Engagement Time per Active User: Measures how long users stay on each page on average
+
+    -   Ranking by Engagement Duration: Pages are ordered from highest to lowest based on engagement time
+
+Insight:
+
+:   Pages like (opneye, opneye, dashboard and hotraco, ihotraco-projects, dashboard) have the longest average engagement time (353 and 283 seconds respectively), indicating high user interaction and content stickiness. This suggests these dashboards may be core to user value or reflect areas of deeper user task completion.
+
+Recommendation:
+
+:   -   Analyze what makes these high-engagement pages successful
+
+    -   Use them as a model for improving lower-engagement pages
+
+```{r}
+
+top_engagement <- Cleaned_Pageviews %>%
+  arrange(desc(`Average engagement time per active user`)) %>%
+  head(5)
+
+ggplot(top_engagement, aes(x = reorder(`Page path and screen class`, `Average engagement time per active user`), 
+                           y = `Average engagement time per active user`)) +
+  geom_bar(stat = "identity", fill = "#2ca02c") +
+  geom_text(aes(label = round(`Average engagement time per active user`, 1)), vjust = -0.3, size = 4) +
+  labs(
+    title = "3.2: Top 5 Pages by Avg Engagement Time",
+    subtitle = "Supports retention and user engagement analysis",
+    x = "Page",
+    y = "Avg Engagement Time (sec)"
+  ) +
+  theme_minimal(base_size = 14) +
+  coord_flip()
+
+```
