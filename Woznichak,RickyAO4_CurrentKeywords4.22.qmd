@@ -5,7 +5,9 @@ embed-resources: true
 ---
 
 # Ricky Woznichak
+
 ## Analytic Objective 4 Worksheet
+
 ```{r}
 # Load the dataset
 data <- read.csv("4.21CurrentKeywords.csv")
@@ -161,6 +163,7 @@ keywords_df %>%
   kable(caption = "Keywords Sorted by SERP Position with Difficulty as %")
 
 ```
+
 ```{r}
 # Load libraries
 library(tidyverse)
@@ -195,6 +198,7 @@ keywords_df %>%
   )
 
 ```
+
 ```{r}
 # Load libraries
 library(tidyverse)
@@ -220,9 +224,11 @@ keywords_df <- keywords_df %>%
 kable(keywords_df, caption = "Keyword Summary Table with Difficulty as %")
 
 ```
+
 ```{r}
 library(randomForest)
 ```
+
 ```{r}
 # Load your dataset
 keywords_df <- read.csv("4.21CurrentKeywords.csv")
@@ -237,6 +243,7 @@ keywords_df <- na.omit(keywords_df)
 str(keywords_df)
 
 ```
+
 ```{r}
 # Run the Random Forest model
 rf_model <- randomForest(SERP.Position ~ log_volume + Keyword.Difficulty,
@@ -248,8 +255,8 @@ rf_model <- randomForest(SERP.Position ~ log_volume + Keyword.Difficulty,
 print(rf_model)
 
 ```
+
 ```{r}
 # Plot importance of predictors
 varImpPlot(rf_model, main = "Variable Importance in Predicting SERP Position")
 ```
-
