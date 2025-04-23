@@ -1,0 +1,518 @@
+---
+title: "Productfolio Google Analytics Insights Report"
+author: "Jennyfer Aguirre"
+date: "2025-04-12"
+output: html_document
+---
+
+# Productfolio Google Analytics Insights Report
+
+## Definitions & Metrics Overview
+
+| Term | Definition |
+|------|------------|
+
+|  |  |
+|------------------------------------|------------------------------------|
+| **Traffic Source/Medium** | Where users came from (e.g., `google / organic`, `linkedin.com / referral`) |
+
+|  |  |
+|------------------------------------|------------------------------------|
+| **Engaged Sessions** | Sessions that lasted longer than 10s, had a conversion event, or 2+ views |
+
+|            |                            |
+|------------|----------------------------|
+| **Signup** | User completes signup form |
+
+|  |  |
+|------------------------------------|------------------------------------|
+| **Activate** | User completes key onboarding step (e.g., email verify, login) |
+
+|                    |                                               |
+|--------------------|-----------------------------------------------|
+| **Setup Complete** | User finishes full onboarding or setup funnel |
+
+|               |                                             |
+|---------------|---------------------------------------------|
+| **Ebook CTA** | User clicks the call-to-action for an ebook |
+
+|                  |                                               |
+|------------------|-----------------------------------------------|
+| **Ebook Submit** | User successfully submits/downloads the ebook |
+
+|  |  |
+|------------------------------------|------------------------------------|
+| **DAU/MAU Ratio** | Stickiness metric (daily active users ÷ monthly active users) |
+
+# Objective Overview
+
+## **Main Objective:**
+
+Provide valuable insights to Productfolio.com by identifying **which media channels and content types** drive the most **traffic** and **conversions**.
+
+To meet this objective, we explored four core areas:
+
+1.  Traffic Acquisition
+
+2.  Landing Page Funnel Analysis
+
+3.  Site Engagement & Pageviews
+
+4.  Ebook Funnel Insights
+
+Control Variables
+
+1.  Time (Last 12 months - 4/11/2024 - 4/11/2025)
+
+# Traffic Aquisition
+
+### Research Questions:
+
+1.  Which traffic sources generate the most sessions?
+2.  Which channels have the highest engagement time and interaction per session?
+3.  Which traffic sources lead to the longest user engagement on site?
+4.  Which traffic sources drive the highest level of interaction per session?
+
+### Visuals:
+
+#### Which traffic sources generate the most sessions and engagement?
+
+##### Tidy & Transform
+
+```{r}
+library(readr)
+
+traffic <- read_csv("Traffic_acquisition_Clean.csv")
+
+```
+
+```{r}
+library(dplyr)
+library(ggplot2)
+
+top_sources <- traffic %>%
+  arrange(desc(sessions)) %>%
+  slice_head(n = 10)
+
+
+```
+
+##### Sessions by Source/Medium
+
+```{r}
+
+ggplot(top_sources, aes(x = reorder(source_medium, sessions), y = sessions)) +
+  geom_col(fill = "#69b3a2") +
+  coord_flip() +
+  labs(
+    title = "Top 10 Traffic Sources by Sessions",
+    x = "Source / Medium",
+    y = "Sessions"
+  ) +
+  theme_minimal()
+
+
+```
+
+Observations:
+
+-   **Google / organic** is the top traffic source. It significantly outperforms the other channels.
+
+-   The **Direct traffic** section are users arriving without a known source. Direct traffic ranks second, but with noticeably fewer sessions than Google.
+
+-   Other sources like **bing**, **referrals**, and **Google/ CPC** contribute minimal traffic in comparison.
+
+::: Note
+Google/CPC: Cost per click advertisements.
+:::
+
+Interpretations:
+
+-   Productfolio is gaining significant traction primarily through Google Organic Search. Their **SEO strategy** works. There should be a continued investment in content and keyword optimization.
+
+-   The high percentage of direct traffic may indicate **returning users or unattributed sessions** (e.g., from untagged links); **UTM tracking** can help clarify and capitalize on these visits.
+
+-   **Referral traffic** is limited in sessions. There might be potential to expand presence through partnerships or backlink outreach.
+
+#### Which channels have the highest engaged sessions?
+
+```{r}
+
+top_engaged <- traffic %>%
+  arrange(desc(engaged_sessions)) %>%
+  slice_head(n = 10)
+
+```
+
+##### Engaged Session per Source
+
+```{r}
+
+ggplot(top_engaged, aes(x = reorder(source_medium, engaged_sessions), y = engaged_sessions)) +
+  geom_col(fill = "#FFA07A") +
+  coord_flip() +
+  labs(
+    title = "Top 10 Sources by Engaged Sessions",
+    x = "Source / Medium",
+    y = "Engaged Sessions"
+  ) +
+  theme_minimal()
+
+
+```
+
+Observations:
+
+-   **Google / organic** has the highest, most high quality engagement.
+
+-   **Direct traffic** also generates a moderate number of engaged sessions but at a much lower scale than Google.
+
+-   trafficpeak.io brought 639 sessions and 100% of them were engaged sessions
+
+Interpretations:
+
+-   Google organic highlights that users who arrive via search are numerous and **highly engaged**.
+
+-   Direct traffic shows decent interaction but doesn't have as much success with conversions. This suggests that both loyal users and untagged referrals are taken place here.
+
+-   The low engagement from paid channels (e.g., Google / CPC) and niche referrals may indicate a need for a reallocation of resources.
+
+-   Reach out to trafficpeak.io and collaborate, promote more content there, learn what audience they attract
+
+#### Which traffic sources drive the highest level of interaction per session?
+
+##### Tidy & Transform
+
+```{r}
+top_events <- traffic %>%
+  filter(!grepl("\\(not set\\)", source_medium)) %>%
+  arrange(desc(events_per_session)) %>%
+  slice_head(n = 10)
+
+```
+
+##### Sources by events per session 
+
+```{r}
+
+top_events <- traffic %>%
+  filter(!grepl("\\(not set\\)", source_medium)) %>%
+  arrange(desc(events_per_session)) %>%
+  slice_head(n = 10)
+
+ggplot(top_events, aes(x = reorder(source_medium, events_per_session), y = events_per_session)) +
+  geom_col(fill = "#9370DB") +
+  coord_flip() +
+  labs(
+    title = "Top 10 Sources by Events Per Session (Filtered)",
+    x = "Source / Medium",
+    y = "Avg. Events per Session"
+  ) +
+  theme_minimal()
+
+
+```
+
+### **Observations:**
+
+-   **`inobram.atlassian.net / referral`** leads significantly, averaging over **22 events per session**.
+
+-   Most sources are **referral-based**.
+
+-   **Google PPC** ranking 5th in this list ndicates that while paid search brings traffic, it may not match the organic engagement depth of referrals.
+
+### **Interpretations:**
+
+-   Referral traffic — particularly from niche or tech-aligned sources — ususally yields more high engagement users. This is probably because the users are already aligned with Productfolio’s offerings before arriving.
+
+-   High event counts per session imply that these users are **actively exploring**, **clicking**, or **triggering multiple events**, which could indicate interest in product features, content, or conversions.
+
+-   We can prioritize partnerships and investigate what techniques they're using, especially with platforms like Poptin and Product Hunt.
+
+# Landing Page Analysis
+
+## Research Questions
+
+-   Which landing pages are the most efficient at converting visitors into signups?
+
+-   Which landing pages are most effective at converting users through the funnel (signup → activation → setup completion)
+
+### Visuals:
+
+#### Which landing pages are the most efficient at converting visitors into signups?
+
+##### Tidy & Transform
+
+![](images/clipboard-3036932745.png)
+
+##### Landing Pages by Total Signups
+
+![](images/clipboard-3402705295.png)
+
+![](images/clipboard-2765407203.png)
+
+**Observations:**
+
+-   The homepage (`/`) drives the highest number of signups, totaling over 60. Meanwhile, `/21-product-management-frameworks` and `/what-is-a-digital-product` follow, each generating 20–30 signups.
+
+**Interpretations:**
+
+-   Educational and informative content such as product frameworks and digital product explanations appear highly effective in motivating users to sign up.
+
+-   Targeted pages like `/signup` may attract users who were already intending to convert. Thiss suggests strong value in having direct, accessible signup points alongside content-driven pages.
+
+#### Which landing pages are most effective at converting users through the funnel (signup → activation → setup completion)
+
+##### Top Landing Pages by Signup Rate (Filtered)
+
+![](images/clipboard-3513966489.png)
+
+![](images/clipboard-2107001584.png){width="727"}
+
+**Observations:**
+
+-   `/definition-of-done` leads all landing pages with a signup rate above **0.35**. Meanwhile, `/cal-poly/cis/roadmap` follows with a signup rate around **0.30**.
+
+-   The last few pages all show moderate signup rates between **0.07–0.09**.
+
+**Interpretation:**
+
+-   Pages like `/definition-of-done` and `/cal-poly/cis/roadmap` are very effective at having users initiate signups. This may be due to strong messaging, relevant content, or high-intent traffic.
+
+##### Tidy & Transformation
+
+![](images/clipboard-2556869843.png)
+
+![](images/clipboard-725712201.png)
+
+##### Top Landing Pages by Signup Rate (Filtered)
+
+##### ![](images/clipboard-805851313.png)
+
+**Observations:**
+
+-   `/definition-of-done` and `/cal-poly/cis/roadmap` still rank top 2 in activation, indicating that the user continued engagement beyond the signup.
+
+-   Activation rates remain consistent with signup trends. This shows that the customers who signed up are also completing key next steps like email verification or onboarding.
+
+-   Lower-ranked pages show a drop-off in activation despite decent signup rates.
+
+**Interpretation:**
+
+-   The top pages not only attract but retain user momentum through the funnel.
+
+-   Activation strength makes sure that the signup that was initially done wasnt accidental or casual. Activation rates show users who are genuinely engaged and willing to move forward with the process.
+
+##### Tidy & Transform
+
+![](images/clipboard-4182055718.png)
+
+##### Top Landing Pages by Setup Completion Rate (Filtered)
+
+![](images/clipboard-783874503.png)
+
+![](images/clipboard-3160292089.png)
+
+**Observations:**
+
+-   `/definition-of-done` dominates again with `/Beta-testing`replacing `/cal-poly/cis/roadmap`.
+
+-   Pages like `/ebook-downloads` and `/product-portal` appear in the top 5 here, even though they weren’t strong performers in signups or activation.
+
+**Interpretation:**
+
+-   Setup completion indicates full onboarding, and `/definition-of-done` is most efficient across the entire funnel.
+
+-   Pages like `/ebook-downloads` improved visibility.
+
+# Site Engagement & Pageviews
+
+## Research Questions
+
+1.  How does average user engagement evolve across the year?
+
+2.  Are the most visited pages also the most engaging?
+
+3.  How frequently do users return to engage with the site (DAU/MAU)?
+
+### Visuals
+
+#### How does average user engagement evolve across the year?
+
+##### Tidy & Transform
+
+![](images/clipboard-1885083029.png)
+
+##### Engagement Time per Active User
+
+![](images/clipboard-3712113742.png)
+
+![](images/clipboard-94571420.png)
+
+**Observations:**
+
+-   The average engagement time per active was relatively stable across the year. It usually ranged between **0.5 to 1 minute** on most days.
+
+-   **Notable irregular and isolated spikes** would occur sometimes, with the longest times reaching **4 to 8 minutes**.
+
+**Interpretation:**
+
+-   There appears to be a **stable user base behavior** with occasional peaks likely driven by specific events. (We don't know for sure, further investigation should be conducted.)
+
+-   Understanding what caused these spikes (e.g., blog releases, email campaigns, feature updates) could help Productfolio **optimize content strategy** to replicate these high-engagement moments more frequently throughout the year.
+
+#### Are the most visited pages also the most engaging?
+
+##### Tidy & Transform
+
+![](images/clipboard-3442860344.png)
+
+##### Page views vs average engagement time
+
+![](images/clipboard-1872193921.png)
+
+![](images/clipboard-3321080636.png)
+
+**Observations:**
+
+-   The majority of these pages are stacked in the bottom-left quadrant, indicating **low views and low engagement time**.
+
+-   There are some outlier pages that have **very high pageviews** (e.g., over 20,000), but their engagement times are only modestly higher than the average.
+
+-   Some pages with **moderate engagement time (1–1.5 minutes)** received **relatively low views**. This indicates that the pages are **highly engagin**g but are **underexposed.**
+
+**Interpretation:**
+
+-   There is **no clear correlation** between total page views and average engagement time — pages that attract high traffic don’t necessarily keep users engaged longer.
+
+-   Likewise, **traffic volume does not guarantee quality engagement**, and highly engaging content may be getting overlooked due to limited exposure.
+
+-   This is an **opportunity to amplify lesser-known but engaging content** — potentially through better internal linking, SEO, or promotional strategies.
+
+-   Additionally, evaluating **why top-viewed pages aren’t driving higher engagement**.
+
+##### Top 3 Pages![](images/clipboard-3224069533.png)
+
+![](images/clipboard-1364308654.png)
+
+**Observation**
+
+-   The **top three pages by engagement time** (orange) — `/janet/autozon/dashboards/a/sa/dashboard`, `/ssss/wwww/prioritize`, and `/csa/sa/dashboard`
+
+-   In contrast, the **most visited pages** (green) — `/21-product-management-frameworks/`, `/what-is-a-digital-product/`, and `/ice-scoring/`
+
+**Interpretation**
+
+Not all popular pages are engaging, and not all engaging pages are popular.
+
+### How frequently do users return to engage with the site (DAU/MAU)?
+
+#### Visuals
+
+##### Tidy & Transform
+
+![](images/clipboard-3950524477.png)
+
+##### Stickiness Overtime
+
+![](images/clipboard-3877236191.png)
+
+![](images/clipboard-3733275978.png)**Observations:**
+
+-   The DAU/MAU ratio fluctuates between **0.03 and 0.05** for most of the year.
+
+-   There are **occasional spikes** (e.g., near days \~50, \~140, \~250, and \~365) where the stickiness ratio briefly increases, peaking around **0.11** and again near the industry benchmark of **0.15**.
+
+-   Despite the short-term peaks, the majority of values remain **well below the industry average** of **0.15**.
+
+**Interpretation:**
+
+-   Productfolio’s **stickiness is low**. This means that while users may visit the site, they are **not returning frequently within a month**.
+
+-   The **low DAU/MAU ratio (\~0.04 average)** indicates a need to **strengthen re-engagement strategies** to keep users coming back.
+
+# Ebook Insights
+
+## Research Questions
+
+1.  Which channels lead to the most ebook submissions?
+
+2.  How does ebook engagement compare to other key events on the site?
+
+### Visuals
+
+#### Which channels lead to the most ebook submissions?
+
+##### Tidy & Transform
+
+![](images/clipboard-1489980155.png)
+
+##### Top Channels Driving Ebook Submissions
+
+![](images/clipboard-2819469168.png)
+
+![](images/clipboard-946372811.png)**Observations:**
+
+-   **Google** is the top-performing channel by a large margin, contributing **89 ebook submissions**.
+
+-   **Direct traffic** follows with **26 submissions**, indicating users may be accessing the site by typing in the URL or via untagged links.
+
+**Interpretations:**
+
+-   **Search engines (especially Google)** play a dominant role in driving ebook engagement, highlighting the importance of **strong SEO** and discoverability of ebook-related content.
+
+-   The **significant volume from direct traffic** may suggest returning users or links in emails/DMs without tracking parameters – we should consider improving **UTM tagging** for better attribution.
+
+-   **Platforms** like ChatGPT.com are beginning to show traction and like **LinkedIn and Medium** underperform despite being content-focused platforms. This may signal an opportunity to **boost ebook visibility** on these networks via targeted campaigns or reposting.
+
+#### How does ebook engagement compare to other key events on the site?
+
+##### Tidy & Transform
+
+![](images/clipboard-2021058287.png)
+
+##### Total users by event type
+
+![](images/clipboard-461878595.png)
+
+![](images/clipboard-1541706553.png)
+
+**Observations:**
+
+-   The **"Ebook CTA"** ranks **5th** overall in total user interaction, just behind foundational events like `first_visit`, `session_start`, and `user_engagement`.
+
+-   Events directly related to the ebook journey — **`form_start`**, **`form_submit`**, **`ebook_submit`**, and **`file_download`** — follow closely in the ranking.
+
+-   The top 4 events are broad, **universal events** that most users trigger during any visit. Good news for ebook downloads.
+
+**Interpretations:**
+
+-   **Ebook engagement is one of the most triggered intentional user actions on the site**, placing it in the top half of key site event. This is a strong signal of its relevance and value.
+
+-   The full **ebook funnel appears healthy**, with high conversion from **click to form start to submission**,.
+
+-   **Ebooks** drive meaningful engagement and action.
+
+# **Key Findings:**
+
+-   **Google (organic search)** is the leading source of both sessions and engaged sessions, confirming the strength of SEO as a top acquisition channel.
+
+-   **Referral sources** like `inobram.atlassian.net` and `producthunt.com` drive the highest per-session interaction, highlighting the value of strategic partnerships and placements.
+
+-   High-performing **landing pages** like `/definition-of-done` and `/cal-poly/cis/roadmap` not only attract visitors but successfully guide them through signups, activation, and full setup completion.
+
+-   While overall stickiness (DAU/MAU) remains below the industry benchmark of 0.15, patterns suggest spikes in return visits during key content releases or campaign pushes.
+
+-   **Ebooks stand out** as one of the top conversion mechanisms. Ebook-related events are among the highest-performing site actions, especially when traffic is driven by Google.
+
+# **Strategic Recommendations:**
+
+-   **Double down on SEO and high-converting content** like definitions, frameworks, and comparison pages — they drive both traffic and funnel progression.
+
+-   **Prioritize referral partnerships** and content syndication opportunities with domains that show high engagement per session.
+
+-   **Continue promoting ebooks**, and layer on email or product onboarding flows for users who engage with them.
+
+-   **Improve attribution** on `(direct)` and `(not set)` traffic with better UTM tagging and campaign tracking.
+
+-   **Explore stickiness improvements** through in-app reminders, content updates, or email nurturing to encourage return visits.
